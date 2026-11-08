@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Curso extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'nome_curso'
+    ];
+
+    public function documentos()
+    {
+        return $this->hasMany(Documento::class);
+    }
+}
