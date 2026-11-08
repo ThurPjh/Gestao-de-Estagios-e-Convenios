@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('gavetas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('armario_id')->constrained('armarios'); // Chave Estrangeira
+            $table->string('identificacao')->default('20');
+            $table->integer('capacidade_maxima')->nullable();
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

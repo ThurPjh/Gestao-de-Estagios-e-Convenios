@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('emprestimos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('documento_id')->constrained('documentos');
+            $table->foreignId('user_id')->constrained('users'); // Relaciona com a tabela de utilizadores nativa do Laravel
+            $table->date('data_emprestimo');
+            $table->date('data_devolucao')->nullable();
+            $table->string('status')->default('Emprestado'); // Emprestado ou Devolvido
             $table->timestamps();
         });
     }
