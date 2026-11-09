@@ -15,10 +15,10 @@
 
     <form action="{{ route('armarios.store') }}" method="POST">
         @csrf <!-- Proteção obrigatória do Laravel -->
-        
+
         <label for="identificacao">Identificação do Armário:</label>
         <input type="text" name="identificacao" id="identificacao" placeholder="Ex: Armário A - Sala 2" required>
-        
+
         <button type="submit">Salvar Armário</button>
     </form>
     <br>
