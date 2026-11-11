@@ -11,9 +11,39 @@ use Illuminate\Http\Request;
 
 class DocumentoController extends Controller
 {
-    public function index() {
-        // Trazemos o documento já com todas as suas relações para mostrar na tabela
-        $documentos = Documento::with(['gaveta.armario', 'curso', 'assunto', 'aluno'])->get();
+    public function index(Request $request)
+    {
+        // Inicia a query chamando todos os relacionamentos para evitar lentidão
+        $query = \App\Models\Documento::with(['aluno', 'curso', 'assunto', 'gaveta.armario'])->latest();
+
+        // Verifica se há alguma pesquisa
+        if ($request->filled('search')) {
+            $search = $request->search;
+            
+            $query->where(function($q) use ($search) {
+                // Busca pelo ID exato
+                $q->where('id', $search)
+                  // Ou pelo título do documento
+                  ->orWhere('titulo_documento', 'like', "%{$search}%")
+                  // Ou pelo nome/matrícula do aluno
+                  ->orWhereHas('aluno', function($qAluno) use ($search) {
+                      $qAluno->where('matricula_aluno', 'like', "%{$search}%")
+                             ->orWhere('nome_aluno', 'like', "%{$search}%");
+                  })
+                  // Ou pelo nome do curso
+                  ->orWhereHas('curso', function($qCurso) use ($search) {
+                      $qCurso->where('nome_curso', 'like', "%{$search}%");
+                  })
+                  // Ou pelo nome do assunto
+                  ->orWhereHas('assunto', function($qAssunto) use ($search) {
+                      $qAssunto->where('nome_assunto', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Puxa os documentos filtrados
+        $documentos = $query->get();
+
         return view('documentos.index', compact('documentos'));
     }
 

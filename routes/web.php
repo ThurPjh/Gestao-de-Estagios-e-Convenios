@@ -29,3 +29,5 @@ Route::resource('documentos', DocumentoController::class);
 Route::resource('emprestimos', EmprestimoController::class);
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::put('/emprestimos/{id}/devolver', [App\Http\Controllers\EmprestimoController::class, 'devolver'])->name('emprestimos.devolver');

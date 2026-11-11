@@ -1,57 +1,37 @@
 @extends('layouts.app')
 
-@section('title', 'Documentos')
-
-@push('styles')
-<style>
-    .table-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    .table-sca { margin: 0; }
-    .table-sca thead th {
-        background: #f7f9fd; color: var(--muted); font-size: .82rem; font-weight: 600;
-        padding: 12px 20px; border-bottom: 1px solid var(--line); white-space: nowrap;
-    }
-    .table-sca tbody td { padding: 14px 20px; vertical-align: middle; border-bottom: 1px solid var(--line); font-size: .92rem; }
-    .table-sca tbody tr:last-child td { border-bottom: 0; }
-    .table-sca tbody tr:hover { background: #f9fbff; }
-    .id-cell { font-variant-numeric: tabular-nums; color: var(--muted); }
-    .item-cell { display: flex; align-items: center; gap: 12px; font-weight: 600; }
-    .item-icon {
-        width: 34px; height: 34px; border-radius: 8px; background: var(--blue-soft); color: var(--blue);
-        display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
-    }
-    .local { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); white-space: nowrap; }
-    .local i { color: var(--muted); }
-    .local .sep { color: #b4c0d3; }
-    .empty-state { padding: 48px 24px; text-align: center; color: var(--muted); }
-    .empty-state i { font-size: 2rem; color: var(--blue); }
-</style>
-@endpush
-
 @section('content')
-@php $documentos->load('aluno', 'curso', 'assunto', 'gaveta.armario'); @endphp
-
-<div class="page-head">
-    <div>
-        <h1>Documentos</h1>
-        <p>Consulte e gerencie os documentos do setor de Estágios e Convênios.</p>
-    </div>
-    <a href="{{ route('documentos.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Arquivar documento
-    </a>
-</div>
-
-<div class="table-card">
-    @if($documentos->isEmpty())
-        <div class="empty-state">
-            <i class="bi bi-file-earmark-text"></i>
-            <p class="mt-2 mb-0">Nenhum documento arquivado ainda. Clique em "Arquivar documento" para começar.</p>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white pt-4 pb-3">
+        <!-- Título e Botão Novo -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0 text-secondary fw-bold">Consulta de Documentos</h4>
+            <a href="{{ route('documentos.create') }}" class="btn btn-primary">+ Arquivar Documento</a>
         </div>
-    @else
+
+        <!-- Barra de Pesquisa -->
+        <form action="{{ route('documentos.index') }}" method="GET" class="row g-2 align-items-center bg-light p-3 rounded">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Buscar por ID, Título, Matrícula, Aluno, Curso ou Assunto..." value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary w-100">Pesquisar</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ route('documentos.index') }}" class="btn btn-outline-secondary w-100">Limpar</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-sca">
-                <thead>
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th style="width: 70px;">ID</th>
+                        <th class="ps-4">ID</th>
                         <th>Título</th>
                         <th>Aluno</th>
                         <th>Curso</th>
@@ -60,31 +40,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($documentos as $doc)
-                        <tr>
-                            <td class="id-cell">{{ $doc->id }}</td>
-                            <td>
-                                <div class="item-cell">
-                                    <span class="item-icon"><i class="bi bi-file-earmark-text"></i></span>
-                                    {{ $doc->titulo_documento }}
-                                </div>
-                            </td>
-                            <td>{{ $doc->aluno->nome_aluno ?? 'N/A' }}</td>
-                            <td>{{ $doc->curso->nome_curso ?? 'N/A' }}</td>
-                            <td>{{ $doc->assunto->nome_assunto ?? 'N/A' }}</td>
-                            <td>
-                                <span class="local">
-                                    <i class="bi bi-geo-alt"></i>
-                                    {{ $doc->gaveta->armario->identificacao ?? 'N/A' }}
-                                    <span class="sep">/</span>
-                                    {{ $doc->gaveta->identificacao ?? 'N/A' }}
-                                </span>
-                            </td>
-                        </tr>
-                    @endforeach
+                    @forelse($documentos as $doc)
+                    <tr>
+                        <td class="ps-4 text-muted">{{ $doc->id }}</td>
+                        <td class="fw-bold text-primary">
+                            <i class="bi bi-file-earmark-text me-2 text-muted"></i>{{ $doc->titulo_documento }}
+                        </td>
+                        <td>
+                            {{ $doc->aluno->nome_aluno ?? 'N/A' }}<br>
+                            <small class="text-muted">{{ $doc->aluno->matricula_aluno ?? '' }}</small>
+                        </td>
+                        <td>{{ $doc->curso->nome_curso ?? 'N/A' }}</td>
+                        <td>{{ $doc->assunto->nome_assunto ?? 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-secondary">Armário {{ $doc->gaveta->armario->identificacao ?? 'N/A' }}</span>
+                            <span class="badge bg-info text-dark">Gaveta {{ $doc->gaveta->identificacao ?? 'N/A' }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Nenhum documento encontrado com estes filtros.
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    @endif
+    </div>
 </div>
 @endsection

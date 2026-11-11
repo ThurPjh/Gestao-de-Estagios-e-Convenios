@@ -1,84 +1,90 @@
 @extends('layouts.app')
 
-@section('title', 'Empréstimos')
-
-@push('styles')
-<style>
-    .table-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    .table-sca { margin: 0; }
-    .table-sca thead th {
-        background: #f7f9fd; color: var(--muted); font-size: .82rem; font-weight: 600;
-        padding: 12px 20px; border-bottom: 1px solid var(--line); white-space: nowrap;
-    }
-    .table-sca tbody td { padding: 14px 20px; vertical-align: middle; border-bottom: 1px solid var(--line); font-size: .92rem; }
-    .table-sca tbody tr:last-child td { border-bottom: 0; }
-    .table-sca tbody tr:hover { background: #f9fbff; }
-    .id-cell { font-variant-numeric: tabular-nums; color: var(--muted); }
-    .doc-cell { font-weight: 600; }
-    .date-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
-
-    .pill {
-        display: inline-block; padding: 4px 12px; border-radius: 99px;
-        font-size: .8rem; font-weight: 600; white-space: nowrap;
-    }
-    .pill-ok { background: #e3f6ea; color: #17803d; }
-    .pill-warn { background: #fdf0d5; color: #a86400; }
-
-    .empty-state { padding: 48px 24px; text-align: center; color: var(--muted); }
-    .empty-state i { font-size: 2rem; color: var(--blue); }
-</style>
-@endpush
-
 @section('content')
-@php $emprestimos->load('documento', 'user'); @endphp
-
-<div class="page-head">
-    <div>
-        <h1>Empréstimos</h1>
-        <p>Acompanhe as saídas e devoluções dos documentos físicos.</p>
-    </div>
-    <a href="{{ route('emprestimos.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Registrar saída
-    </a>
-</div>
-
-<div class="table-card">
-    @if($emprestimos->isEmpty())
-        <div class="empty-state">
-            <i class="bi bi-arrow-left-right"></i>
-            <p class="mt-2 mb-0">Nenhuma saída registrada ainda. Clique em "Registrar saída" para começar.</p>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white pt-4 pb-3">
+        <!-- Título e Botão de Novo -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0 text-secondary fw-bold">Controlo de Empréstimos</h4>
+            <a href="{{ route('emprestimos.create') }}" class="btn btn-primary">+ Registar Saída</a>
         </div>
-    @else
+
+        <!-- Barra de Pesquisa e Filtros -->
+        <form action="{{ route('emprestimos.index') }}" method="GET" class="row g-2 align-items-center bg-light p-3 rounded">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Buscar por ID, Título, Matrícula ou Aluno..." value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">Todos os Status</option>
+                    <option value="Emprestado" {{ request('status') == 'Emprestado' ? 'selected' : '' }}>Apenas Emprestados</option>
+                    <option value="Devolvido" {{ request('status') == 'Devolvido' ? 'selected' : '' }}>Apenas Devolvidos</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary w-100">Filtrar</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ route('emprestimos.index') }}" class="btn btn-outline-secondary w-100">Limpar</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-sca">
-                <thead>
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th style="width: 70px;">ID</th>
+                        <th class="ps-4">ID</th>
                         <th>Documento</th>
                         <th>Responsável</th>
-                        <th>Data de saída</th>
+                        <th>Data Saída</th>
                         <th>Status</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($emprestimos as $emprestimo)
-                        <tr>
-                            <td class="id-cell">{{ $emprestimo->id }}</td>
-                            <td class="doc-cell">{{ $emprestimo->documento->titulo_documento ?? 'N/A' }}</td>
-                            <td>{{ $emprestimo->user->name ?? 'N/A' }}</td>
-                            <td class="date-cell">{{ \Carbon\Carbon::parse($emprestimo->data_emprestimo)->format('d/m/Y') }}</td>
-                            <td>
-                                @if($emprestimo->status == 'Devolvido')
-                                    <span class="pill pill-ok">Devolvido</span>
-                                @else
-                                    <span class="pill pill-warn">Emprestado</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
+                    @forelse($emprestimos as $emprestimo)
+                    <tr>
+                        <td class="ps-4">{{ $emprestimo->id }}</td>
+                        <td>
+                            <span class="fw-bold text-primary">{{ $emprestimo->documento->titulo_documento ?? 'N/A' }}</span><br>
+                            <small class="text-muted">Aluno: {{ $emprestimo->documento->aluno->nome_aluno ?? 'N/A' }} ({{ $emprestimo->documento->aluno->matricula_aluno ?? 'N/A' }})</small>
+                        </td>
+                        <td>{{ $emprestimo->user->name ?? 'N/A' }}</td>
+                        <td>{{ \Carbon\Carbon::parse($emprestimo->data_emprestimo)->format('d/m/Y') }}</td>
+                        <td>
+                            @if($emprestimo->status == 'Devolvido')
+                                <span class="badge bg-success">Devolvido</span>
+                            @else
+                                <span class="badge bg-warning text-dark">Emprestado</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($emprestimo->status == 'Emprestado')
+                                <form action="{{ route('emprestimos.devolver', $emprestimo->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-sm btn-outline-success fw-bold" onclick="return confirm('Confirmar a devolução deste documento ao arquivo?')">
+                                        <i class="bi bi-check2-circle"></i> Devolver
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-muted small">Devolvido em: {{ \Carbon\Carbon::parse($emprestimo->data_devolucao)->format('d/m/Y') }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Nenhum empréstimo encontrado com estes filtros.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    @endif
+    </div>
 </div>
 @endsection

@@ -8,7 +8,6 @@
 
 <!-- Cartões de Resumo -->
 <div class="row mb-4">
-    <!-- Total de Documentos -->
     <div class="col-md-4 mb-3">
         <div class="card border-0 shadow-sm" style="border-left: 5px solid #0d6efd;">
             <div class="card-body">
@@ -17,8 +16,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Documentos Emprestados -->
     <div class="col-md-4 mb-3">
         <div class="card border-0 shadow-sm" style="border-left: 5px solid #198754;">
             <div class="card-body">
@@ -27,13 +24,42 @@
             </div>
         </div>
     </div>
-
-    <!-- Total de Gavetas -->
     <div class="col-md-4 mb-3">
         <div class="card border-0 shadow-sm" style="border-left: 5px solid #ffc107;">
             <div class="card-body">
                 <h6 class="text-muted fw-bold mb-1">GAVETAS CADASTRADAS</h6>
                 <h2 class="mb-0 text-dark fw-bold">{{ $totalGavetas }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NOVA SEÇÃO DE GRÁFICOS -->
+<div class="row mb-4">
+    <!-- Gráfico de Cursos (Donut) -->
+    <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-secondary">Documentos por Curso</h6>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <div style="position: relative; height:250px; width:100%">
+                    <canvas id="chartCursos"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Armários (Bar) -->
+    <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="mb-0 fw-bold text-secondary">Ocupação Física por Armário</h6>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height:250px; width:100%">
+                    <canvas id="chartArmarios"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -79,4 +105,67 @@
         </div>
     </div>
 </div>
+
+<!-- IMPORTAÇÃO DO CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- RENDERIZAÇÃO DOS GRÁFICOS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Recebe os dados convertidos do Laravel
+        const labelsCursos = {!! $labelsCursos !!};
+        const dadosCursos = {!! $dadosCursos !!};
+        
+        const labelsArmarios = {!! $labelsArmarios !!};
+        const dadosArmarios = {!! $dadosArmarios !!};
+
+        // Paleta de cores corporativa baseada no Figma
+        const colors = ['#1565e0', '#f0a020', '#198754', '#e5484d', '#0dcaf0', '#6f42c1'];
+
+        // Gráfico 1: Rosca (Donut)
+        new Chart(document.getElementById('chartCursos'), {
+            type: 'doughnut',
+            data: {
+                labels: labelsCursos,
+                datasets: [{
+                    data: dadosCursos,
+                    backgroundColor: colors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Gráfico 2: Barras (Bar)
+        new Chart(document.getElementById('chartArmarios'), {
+            type: 'bar',
+            data: {
+                labels: labelsArmarios,
+                datasets: [{
+                    label: 'Documentos Arquivados',
+                    data: dadosArmarios,
+                    backgroundColor: '#1565e0',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    });
+</script>
 @endsection
