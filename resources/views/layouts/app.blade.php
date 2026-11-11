@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -102,6 +101,7 @@
 <body>
 @php
     $principal = [
+        ['Dashboard', 'dashboard', 'dashboard', 'bi-grid-1x2'], // <-- Adicionado aqui
         ['Documentos', 'documentos.index', 'documentos.*', 'bi-file-earmark-text'],
         ['Empréstimos', 'emprestimos.index', 'emprestimos.*', 'bi-arrow-left-right'],
         ['Armários', 'armarios.index', 'armarios.*', 'bi-archive'],
@@ -116,7 +116,7 @@
 
 <div class="app">
     <aside class="sidebar">
-        <a href="{{ route('documentos.index') }}" class="brand">
+        <a href="{{ route('dashboard') }}" class="brand">
             <i class="bi bi-folder2-open"></i>
             <div>
                 <strong>Controle de Arquivos</strong>
@@ -158,4 +158,3 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

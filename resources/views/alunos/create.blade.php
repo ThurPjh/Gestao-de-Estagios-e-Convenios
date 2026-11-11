@@ -1,25 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-PT">
-<head><title>Novo Aluno</title></head>
-<body style="font-family: Arial; padding: 20px;">
-    <h1>Cadastrar Aluno</h1>
-    
-    <form action="{{ route('alunos.store') }}" method="POST" style="display: flex; flex-direction: column; max-width: 300px; gap: 15px;">
-        @csrf
-        
-        <div>
-            <label>Matrícula do Aluno:</label><br>
-            <input type="text" name="matricula_aluno" placeholder="Ex: 20231005" required style="padding: 8px; width: 100%;">
-        </div>
+@extends('layouts.app')
 
-        <div>
-            <label>Nome Completo:</label><br>
-            <input type="text" name="nome_aluno" placeholder="Ex: João Silva" required style="padding: 8px; width: 100%;">
+@section('content')
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 text-secondary">Cadastrar Novo Aluno</h4>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('alunos.store') }}" method="POST">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Matrícula</label>
+                        <input type="text" name="matricula_aluno" class="form-control" placeholder="Ex: 20-1-31005" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Nome Completo</label>
+                        <input type="text" name="nome_aluno" class="form-control" placeholder="Ex: João Silva" required>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ route('alunos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4">Salvar Aluno</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        
-        <button type="submit" style="padding: 10px; background: #28a745; color: white; border: none; cursor: pointer;">Salvar Aluno</button>
-    </form>
-    <br>
-    <a href="{{ route('alunos.index') }}">Voltar à lista</a>
-</body>
-</html>
+    </div>
+</div>
+@endsection

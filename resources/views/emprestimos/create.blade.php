@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- CSS do Select2 para a barra de pesquisa -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow-sm border-0">
@@ -13,18 +16,20 @@
                     
                     <div class="mb-3">
                         <label class="form-label fw-bold">Documento Solicitado</label>
-                        <select name="documento_id" class="form-select" required>
-                            <option value="">-- Selecione o Documento --</option>
+                        <!-- Adicionámos a classe 'select2-busca' aqui -->
+                        <select name="documento_id" class="form-select select2-busca" required>
+                            <option value=""></option>
                             @foreach($documentos as $documento)
-                                <option value="{{ $documento->id }}">{{ $documento->titulo_documento }}</option>
+                                <option value="{{ $documento->id }}">{{ $documento->id }} - {{ $documento->titulo_documento }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Utilizador Responsável</label>
-                        <select name="user_id" class="form-select" required>
-                            <option value="">-- Selecione o Utilizador --</option>
+                        <!-- Adicionámos a classe 'select2-busca' aqui -->
+                        <select name="user_id" class="form-select select2-busca" required>
+                            <option value=""></option>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
@@ -45,4 +50,17 @@
         </div>
     </div>
 </div>
+
+<!-- jQuery e Select2 JS para o filtro -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-busca').select2({
+            placeholder: "-- Digite para pesquisar --",
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
 @endsection

@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- CSS do Select2 para a barra de pesquisa -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-sm border-0">
@@ -19,8 +22,9 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Aluno</label>
-                            <select name="aluno_id" class="form-select" required>
-                                <option value="">-- Selecione --</option>
+                            <!-- Adicionámos a classe 'select2-busca' aqui -->
+                            <select name="aluno_id" class="form-select select2-busca" required>
+                                <option value=""></option>
                                 @foreach($alunos as $aluno)
                                     <option value="{{ $aluno->id }}">{{ $aluno->matricula_aluno }} - {{ $aluno->nome_aluno }}</option>
                                 @endforeach
@@ -28,8 +32,9 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Curso</label>
-                            <select name="curso_id" class="form-select" required>
-                                <option value="">-- Selecione --</option>
+                            <!-- Adicionámos a classe 'select2-busca' aqui -->
+                            <select name="curso_id" class="form-select select2-busca" required>
+                                <option value=""></option>
                                 @foreach($cursos as $curso)
                                     <option value="{{ $curso->id }}">{{ $curso->nome_curso }}</option>
                                 @endforeach
@@ -40,8 +45,9 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Assunto</label>
-                            <select name="assunto_id" class="form-select" required>
-                                <option value="">-- Selecione --</option>
+                            <!-- Adicionámos a classe 'select2-busca' aqui -->
+                            <select name="assunto_id" class="form-select select2-busca" required>
+                                <option value=""></option>
                                 @foreach($assuntos as $assunto)
                                     <option value="{{ $assunto->id }}">{{ $assunto->nome_assunto }}</option>
                                 @endforeach
@@ -49,8 +55,9 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Localização (Gaveta)</label>
-                            <select name="gaveta_id" class="form-select" required>
-                                <option value="">-- Selecione --</option>
+                            <!-- Adicionámos a classe 'select2-busca' aqui -->
+                            <select name="gaveta_id" class="form-select select2-busca" required>
+                                <option value=""></option>
                                 @foreach($gavetas as $gaveta)
                                     <option value="{{ $gaveta->id }}">Armário: {{ $gaveta->armario->identificacao ?? 'N/A' }} | Gaveta: {{ $gaveta->identificacao }}</option>
                                 @endforeach
@@ -72,4 +79,18 @@
         </div>
     </div>
 </div>
+
+<!-- jQuery e Select2 JS para fazer a mágica acontecer -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Aplica o filtro de pesquisa a todos os selects com a classe 'select2-busca'
+        $('.select2-busca').select2({
+            placeholder: "-- Digite para pesquisar --",
+            allowClear: true,
+            width: '100%' // Garante que não quebra o layout do Bootstrap
+        });
+    });
+</script>
 @endsection

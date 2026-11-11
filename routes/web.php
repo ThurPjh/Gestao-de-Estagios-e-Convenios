@@ -7,6 +7,7 @@ use App\Http\Controllers\AssuntoController;
 use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmprestimoController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return redirect()->route('armarios.index'); // Redireciona a página inicial direto para os armários
@@ -26,3 +27,5 @@ Route::resource('alunos', AlunoController::class);
 Route::resource('documentos', DocumentoController::class);
 
 Route::resource('emprestimos', EmprestimoController::class);
+
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
