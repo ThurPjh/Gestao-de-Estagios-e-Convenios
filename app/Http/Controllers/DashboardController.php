@@ -6,52 +6,52 @@ use App\Models\Documento;
 use App\Models\Emprestimo;
 use App\Models\Gaveta;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Necessário para os cálculos dos gráficos
+use Illuminate\Support\Facades\DB; 
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        // 1. Totais dos Cartões
-        $totalDocumentos = Documento::count();
-        $documentosEmprestados = Emprestimo::where('status', 'Emprestado')->count();
-        $totalGavetas = Gaveta::count();
 
-        // 2. Últimos 5 documentos para a tabela
-        $documentosRecentes = Documento::with(['aluno', 'curso', 'assunto', 'gaveta.armario'])
-                                     ->latest()
-                                     ->take(5)
-                                     ->get();
+public function index()
+{
+    // Cards de resumo rápido
+    $totalDocumentos = Documento::count();
+    $emprestimosAtivos = Emprestimo::where('status', 'Emprestado')->count();
+    $disponiveis = $totalDocumentos - $emprestimosAtivos;
 
-        // 3. DADOS PARA O GRÁFICO 1 (Documentos por Curso)
-        $docsPorCurso = Documento::with('curso')
-            ->select('curso_id', DB::raw('count(*) as total'))
-            ->groupBy('curso_id')
-            ->get();
+    // Gráfico 1: Top 6 Gavetas mais cheias (Alerta de capacidade física)
+    $gavetasCheias = Gaveta::with('armario')
+        ->withCount('documentos')
+        ->orderByDesc('documentos_count')
+        ->take(6)
+        ->get();
+
+    $labelsGavetas = $gavetasCheias->map(fn($g) => ($g->armario->identificacao ?? 'Arm.') . ' - ' . $g->identificacao);
+    $dadosGavetas = $gavetasCheias->pluck('documentos_count');
+
+    // Gráfico 2: Movimentação de Empréstimos nos últimos 6 meses
+    $meses = collect();
+    $totaisEmprestimos = collect();
+
+    for ($i = 5; $i >= 0; $i--) {
+        $data = Carbon::now()->subMonths($i);
+        $meses->push($data->translatedFormat('M/Y'));
         
-        $labelsCursos = $docsPorCurso->pluck('curso.nome_curso')->toJson();
-        $dadosCursos = $docsPorCurso->pluck('total')->toJson();
-
-        // 4. DADOS PARA O GRÁFICO 2 (Volume por Armário)
-        $docsPorArmario = DB::table('documentos')
-            ->join('gavetas', 'documentos.gaveta_id', '=', 'gavetas.id')
-            ->join('armarios', 'gavetas.armario_id', '=', 'armarios.id')
-            ->select('armarios.identificacao', DB::raw('count(documentos.id) as total'))
-            ->groupBy('armarios.identificacao')
-            ->get();
+        $count = Emprestimo::whereYear('created_at', $data->year)
+            ->whereMonth('created_at', $data->month)
+            ->count();
             
-        $labelsArmarios = $docsPorArmario->pluck('identificacao')->toJson();
-        $dadosArmarios = $docsPorArmario->pluck('total')->toJson();
-
-        return view('dashboard', compact(
-            'totalDocumentos', 
-            'documentosEmprestados', 
-            'totalGavetas', 
-            'documentosRecentes',
-            'labelsCursos',
-            'dadosCursos',
-            'labelsArmarios',
-            'dadosArmarios'
-        ));
+        $totaisEmprestimos->push($count);
     }
+
+    return view('dashboard', compact(
+        'totalDocumentos',
+        'emprestimosAtivos',
+        'disponiveis',
+        'labelsGavetas',
+        'dadosGavetas',
+        'meses',
+        'totaisEmprestimos'
+    ));
+}
 }
