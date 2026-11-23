@@ -38,3 +38,53 @@ O projeto centraliza o inventário documental dos alunos, vinculando cada regist
    ```bash
    git clone [https://github.com/ThurPjh/Gestao-de-Estagios-e-Convenios.git](https://github.com/ThurPjh/Gestao-de-Estagios-e-Convenios.git)
    cd Gestao-de-Estagios-e-Convenios
+   ```
+
+2. **Instale as dependências do PHP:**
+   ```bash
+   composer install
+   ```
+
+3. **Configure o arquivo de ambiente:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   Abra o arquivo `.env` e ajuste as credenciais de conexão com o seu banco de dados MySQL (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`).
+
+4. **Execute as migrations e popule os dados iniciais:**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+5. **Crie o link simbólico para armazenamento dos arquivos PDF:**
+   ```bash
+   php artisan storage:link
+   ```
+
+6. **Inicie o servidor local:**
+   ```bash
+   php artisan serve
+   ```
+   Acesse `http://127.0.0.1:8000` no navegador.
+
+---
+
+## Estrutura de Pastas Relevante
+
+```text
+├── app/
+│   ├── Http/Controllers/   # Regras de negócio (Documentos, Empréstimos, Alunos, etc.)
+│   └── Models/             # Relacionamentos Eloquent
+├── database/
+│   ├── migrations/         # Estrutura das tabelas do banco de dados
+│   └── seeders/            # Dados iniciais de cursos, assuntos, estrutura e usuário padrão
+├── resources/views/        # Interfaces Blade organizadas por módulo
+└── routes/web.php          # Definição das rotas protegidas por autenticação
+```
+
+---
+
+## Licença
+
+Projeto desenvolvido no âmbito de extensão acadêmica e estágio supervisionado — **UniAtenas**.
