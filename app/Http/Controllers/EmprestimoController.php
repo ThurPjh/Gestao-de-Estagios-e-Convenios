@@ -22,19 +22,19 @@ class EmprestimoController extends Controller
         // 2. Campo de Busca Geral (ID, Título, Matrícula ou Nome do Aluno)
         if ($request->filled('search')) {
             $search = $request->search;
-            
-            $query->where(function($q) use ($search) {
+
+            $query->where(function ($q) use ($search) {
                 // Busca por ID exato
                 $q->where('id', $search)
-                  // Ou busca dentro da tabela de documentos relacionados
-                  ->orWhereHas('documento', function($qDoc) use ($search) {
-                      $qDoc->where('titulo_documento', 'like', "%{$search}%")
-                           // Ou busca dentro da tabela de alunos vinculada ao documento
-                           ->orWhereHas('aluno', function($qAluno) use ($search) {
-                               $qAluno->where('matricula_aluno', 'like', "%{$search}%")
-                                      ->orWhere('nome_aluno', 'like', "%{$search}%");
-                           });
-                  });
+                    // Ou busca dentro da tabela de documentos relacionados
+                    ->orWhereHas('documento', function ($qDoc) use ($search) {
+                        $qDoc->where('titulo_documento', 'like', "%{$search}%")
+                            // Ou busca dentro da tabela de alunos vinculada ao documento
+                            ->orWhereHas('aluno', function ($qAluno) use ($search) {
+                                $qAluno->where('matricula_aluno', 'like', "%{$search}%")
+                                    ->orWhere('nome_aluno', 'like', "%{$search}%");
+                            });
+                    });
             });
         }
 
@@ -44,27 +44,51 @@ class EmprestimoController extends Controller
         return view('emprestimos.index', compact('emprestimos'));
     }
 
-    public function create() {
-        $documentos = Documento::all();
-        $users = User::all();
-        return view('emprestimos.create', compact('documentos', 'users'));
+    public function create()
+    {
+        $documentos = Documento::with(['aluno', 'assunto'])
+            ->whereDoesntHave('emprestimos', function ($query) {
+                $query->where('status', 'Emprestado');
+            })
+            ->get();
+
+        return view('emprestimos.create', compact('documentos'));
     }
 
-    public function store(Request $request) {
-        $request->validate([
-            'documento_id' => 'required',
-            'user_id' => 'required',
-            'data_emprestimo' => 'required|date'
+    public function store(Request $request)
+    {
+        $dados = $request->validate([
+            'documento_id' => 'required|exists:documentos,id',
+            'data_emprestimo' => 'required|date',
+            'observacao' => 'nullable|string|max:500',
+        ], [
+            'documento_id.required' => 'Selecione um documento para realizar o empréstimo.',
+            'data_emprestimo.required' => 'Informe a data de saída do documento.',
         ]);
 
-        Emprestimo::create($request->all());
-        return redirect()->route('emprestimos.index')->with('sucesso', 'Empréstimo registado!');
+        $jaEmprestado = Emprestimo::where('documento_id', $dados['documento_id'])
+            ->where('status', 'Emprestado')
+            ->exists();
+
+        if ($jaEmprestado) {
+            return back()
+                ->withInput()
+                ->with('erro', 'Este documento já consta como emprestado e aguarda devolução.');
+        }
+
+        $dados['user_id'] = auth()->id();
+        $dados['status'] = 'Emprestado';
+
+        Emprestimo::create($dados);
+
+        return redirect()->route('emprestimos.index')
+            ->with('sucesso', 'Empréstimo registrado com sucesso!');
     }
-    
+
     public function devolver($id)
     {
         $emprestimo = \App\Models\Emprestimo::findOrFail($id);
-        
+
         // Atualiza o status e regista a data de devolução como hoje
         $emprestimo->status = 'Devolvido';
         $emprestimo->data_devolucao = \Carbon\Carbon::now();
