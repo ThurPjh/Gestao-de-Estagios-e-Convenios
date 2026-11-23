@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EmprestimoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 // Rotas Públicas (Login e Logout)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('alunos', AlunoController::class);
     Route::resource('documentos', DocumentoController::class);
     Route::resource('emprestimos', EmprestimoController::class);
+    Route::resource('usuarios', UserController::class)->except(['show']);
 
     Route::put('/emprestimos/{id}/devolver', [EmprestimoController::class, 'devolver'])->name('emprestimos.devolver');
 });

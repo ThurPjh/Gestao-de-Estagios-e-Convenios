@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCA · Setor de Estágios e Convênios</title>
-    
+
     <!-- Fonte técnica padrão para sistemas administrativos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Bootstrap 5 e Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -168,16 +169,21 @@
             border-top: 1px solid var(--border-subtle) !important;
         }
 
-        .btn, .form-control, .form-select, .input-group-text {
+        .btn,
+        .form-control,
+        .form-select,
+        .input-group-text {
             border-radius: 5px !important;
             font-size: 0.88rem;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-color: #cbd5e1;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.15);
         }
@@ -232,15 +238,18 @@
                 width: 100%;
                 height: auto;
             }
+
             .main-content {
                 margin-left: 0;
             }
+
             .app-wrapper {
                 flex-direction: column;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="app-wrapper">
         <!-- Menu Lateral -->
@@ -252,34 +261,49 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section-label">Principal</div>
-                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route('dashboard') }}"
+                    class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="bi bi-speedometer2"></i> Painel Geral
                 </a>
-                <a href="{{ route('documentos.index') }}" class="nav-link {{ request()->routeIs('documentos.*') ? 'active' : '' }}">
+                <a href="{{ route('documentos.index') }}"
+                    class="nav-link {{ request()->routeIs('documentos.*') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-text"></i> Documentos
                 </a>
-                <a href="{{ route('emprestimos.index') }}" class="nav-link {{ request()->routeIs('emprestimos.*') ? 'active' : '' }}">
+                <a href="{{ route('emprestimos.index') }}"
+                    class="nav-link {{ request()->routeIs('emprestimos.*') ? 'active' : '' }}">
                     <i class="bi bi-arrow-left-right"></i> Empréstimos
                 </a>
 
                 <div class="nav-section-label mt-2">Cadastros Base</div>
-                <a href="{{ route('alunos.index') }}" class="nav-link {{ request()->routeIs('alunos.*') ? 'active' : '' }}">
+                <a href="{{ route('alunos.index') }}"
+                    class="nav-link {{ request()->routeIs('alunos.*') ? 'active' : '' }}">
                     <i class="bi bi-people"></i> Alunos
                 </a>
-                <a href="{{ route('cursos.index') }}" class="nav-link {{ request()->routeIs('cursos.*') ? 'active' : '' }}">
+                <a href="{{ route('cursos.index') }}"
+                    class="nav-link {{ request()->routeIs('cursos.*') ? 'active' : '' }}">
                     <i class="bi bi-mortarboard"></i> Cursos
                 </a>
-                <a href="{{ route('assuntos.index') }}" class="nav-link {{ request()->routeIs('assuntos.*') ? 'active' : '' }}">
+                <a href="{{ route('assuntos.index') }}"
+                    class="nav-link {{ request()->routeIs('assuntos.*') ? 'active' : '' }}">
                     <i class="bi bi-tag"></i> Assuntos
                 </a>
 
                 <div class="nav-section-label mt-2">Estrutura Física</div>
-                <a href="{{ route('armarios.index') }}" class="nav-link {{ request()->routeIs('armarios.*') ? 'active' : '' }}">
+                <a href="{{ route('armarios.index') }}"
+                    class="nav-link {{ request()->routeIs('armarios.*') ? 'active' : '' }}">
                     <i class="bi bi-archive"></i> Armários
                 </a>
-                <a href="{{ route('gavetas.index') }}" class="nav-link {{ request()->routeIs('gavetas.*') ? 'active' : '' }}">
+                <a href="{{ route('gavetas.index') }}"
+                    class="nav-link {{ request()->routeIs('gavetas.*') ? 'active' : '' }}">
                     <i class="bi bi-inboxes"></i> Gavetas
                 </a>
+
+                <div class="nav-section-label mt-2">Administração</div>
+                <a href="{{ route('usuarios.index') }}"
+                    class="nav-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge"></i> Contas
+                </a>
+
             </nav>
 
             <div class="sidebar-foot">
@@ -290,7 +314,9 @@
                     </div>
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-secondary text-light border-secondary py-0 px-2" title="Encerrar sessão">
+                        <button type="submit"
+                            class="btn btn-sm btn-outline-secondary text-light border-secondary py-0 px-2"
+                            title="Encerrar sessão">
                             Sair
                         </button>
                     </form>
@@ -332,4 +358,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
