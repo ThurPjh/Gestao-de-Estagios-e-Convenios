@@ -16,12 +16,14 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Documento Solicitado</label>
-                            <!-- Adicionámos a classe 'select2-busca' aqui -->
                             <select name="documento_id" class="form-select select2-busca" required>
-                                <option value=""></option>
-                                @foreach($documentos as $documento)
-                                    <option value="{{ $documento->id }}">{{ $documento->id }} -
-                                        {{ $documento->titulo_documento }}</option>
+                                <option value="">-- Pesquise por matrícula, nome do aluno ou documento --</option>
+                                @foreach($documentos as $doc)
+                                    <option value="{{ $doc->id }}" {{ old('documento_id') == $doc->id ? 'selected' : '' }}>
+                                        [{{ $doc->aluno->matricula_aluno ?? 'S/M' }}]
+                                        {{ $doc->aluno->nome_aluno ?? 'Aluno não informado' }} —
+                                        {{ $doc->assunto->nome_assunto ?? 'Documento' }} 
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
