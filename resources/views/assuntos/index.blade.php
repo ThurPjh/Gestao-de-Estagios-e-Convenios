@@ -1,84 +1,72 @@
-
 @extends('layouts.app')
 
-@section('title', 'Assuntos')
-
-@push('styles')
-<style>
-    .table-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    .table-sca { margin: 0; }
-    .table-sca thead th {
-        background: #f7f9fd; color: var(--muted);
-        font-size: .82rem; font-weight: 600;
-        padding: 12px 20px; border-bottom: 1px solid var(--line);
-    }
-    .table-sca tbody td {
-        padding: 14px 20px; vertical-align: middle;
-        border-bottom: 1px solid var(--line); font-size: .92rem;
-    }
-    .table-sca tbody tr:last-child td { border-bottom: 0; }
-    .table-sca tbody tr:hover { background: #f9fbff; }
-
-    .id-cell { font-variant-numeric: tabular-nums; color: var(--muted); }
-    .assunto-cell { display: flex; align-items: center; gap: 12px; font-weight: 500; }
-    .assunto-icon {
-        width: 34px; height: 34px; border-radius: 8px;
-        background: var(--blue-soft); color: var(--blue);
-        display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
-    }
-
-    .empty-state { padding: 48px 24px; text-align: center; color: var(--muted); }
-    .empty-state i { font-size: 2rem; color: var(--blue); }
-</style>
-@endpush
-
 @section('content')
-<div class="page-head">
-    <div>
-        <h1>Assuntos</h1>
-        <p>Lista padronizada de assuntos usada no cadastro de documentos.</p>
-    </div>
-    <a href="{{ route('assuntos.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Novo assunto
-    </a>
-</div>
-
-<div class="table-card">
-    @if($assuntos->isEmpty())
-        <div class="empty-state">
-            <i class="bi bi-tags"></i>
-            <p class="mt-2 mb-0">Nenhum assunto cadastrado ainda. Clique em "Novo assunto" para começar.</p>
+<div class="card">
+    <div class="card-header pt-3 pb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold text-dark">Assuntos Cadastrados</h5>
+            <a href="{{ route('assuntos.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Novo Assunto
+            </a>
         </div>
-    @else
+
+        <form action="{{ route('assuntos.index') }}" method="GET" class="row g-2">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text"
+                           name="search"
+                           class="form-control border-start-0 ps-0"
+                           placeholder="Verificar se o assunto já está registrado..."
+                           value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Pesquisar</button>
+                @if(request('search'))
+                    <a href="{{ route('assuntos.index') }}" class="btn btn-outline-secondary">Limpar</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-sca">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th>Nome do assunto</th>
+                        <th class="ps-4">ID</th>
+                        <th>Descrição do Assunto</th>
+                        <th>Documentos Arquivados</th>
+                        <th class="text-end pe-4">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($assuntos as $assunto)
-                        <tr>
-                            <td class="id-cell">{{ $assunto->id }}</td>
-                            <td>
-                                <div class="assunto-cell">
-                                    <span class="assunto-icon"><i class="bi bi-tag"></i></span>
-                                    {{ $assunto->nome_assunto }}
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                    @forelse($assuntos as $assunto)
+                    <tr>
+                        <td class="ps-4 text-muted">{{ $assunto->id }}</td>
+                        <td class="fw-medium text-dark">{{ $assunto->nome_assunto }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ $assunto->documentos_count }}</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{{ route('assuntos.edit', $assunto->id) }}" class="btn btn-sm btn-outline-secondary" title="Editar assunto">
+                                <i class="bi bi-pencil me-1"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">Nenhum assunto encontrado.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    @endif
+    </div>
+
+    <div class="card-footer py-3">
+        {{ $assuntos->links('pagination::bootstrap-5') }}
+    </div>
 </div>
 @endsection
-

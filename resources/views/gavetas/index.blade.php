@@ -1,105 +1,79 @@
 @extends('layouts.app')
 
-@section('title', 'Gavetas')
-
-@push('styles')
-<style>
-    .gaveta-card {
-        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-        padding: 20px; height: 100%;
-    }
-    .gaveta-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-    .gaveta-icon {
-        width: 42px; height: 42px; border-radius: 10px; background: var(--blue-soft); color: var(--blue);
-        display: grid; place-items: center; font-size: 1.25rem; flex-shrink: 0;
-    }
-    .gaveta-head h2 { font-size: 1rem; font-weight: 700; margin: 0; word-break: break-word; }
-    .gaveta-head small { color: var(--muted); font-size: .82rem; }
-
-    .occ-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-    .occ-row .label { color: var(--muted); font-size: .85rem; }
-    .occ-row strong { font-size: .9rem; white-space: nowrap; }
-    .occ-bar { height: 7px; background: #e9eef6; border-radius: 99px; overflow: hidden; margin-top: 8px; }
-    .occ-bar > div { height: 100%; border-radius: 99px; }
-    .occ-ok > div { background: var(--ok); }
-    .occ-warn > div { background: var(--warn); }
-    .occ-danger > div { background: var(--danger); }
-    .occ-pct { color: var(--muted); font-size: .8rem; margin-top: 6px; }
-    .occ-pct.danger { color: var(--danger); font-weight: 600; }
-    .occ-pct.warn { color: #b97700; font-weight: 600; }
-
-    .btn-secondary-sca {
-        border: 1px solid #c9d6ea; color: var(--blue); background: #fff;
-        border-radius: 8px; font-weight: 600; padding: 9px 16px;
-    }
-    .btn-secondary-sca:hover { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
-
-    .empty-state {
-        background: var(--surface); border: 1px dashed #c9d6ea; border-radius: 12px;
-        padding: 48px 24px; text-align: center; color: var(--muted);
-    }
-    .empty-state i { font-size: 2rem; color: var(--blue); }
-</style>
-@endpush
-
 @section('content')
-@php $gavetas->load('armario', 'documentos'); @endphp
-
-<div class="page-head">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1>Gavetas</h1>
-        <p>Visualize a ocupação de cada gaveta.</p>
+        <h4 class="fw-bold text-dark mb-0">Gavetas</h4>
+        <small class="text-muted">Visualize a ocupação física de cada gaveta</small>
     </div>
-    <div class="d-flex gap-2 flex-wrap">
-        <a href="{{ route('armarios.index') }}" class="btn btn-secondary-sca">
-            <i class="bi bi-archive"></i> Ver armários
+    <div class="d-flex gap-2">
+        <a href="{{ route('armarios.index') }}" class="btn btn-outline-secondary bg-white">
+            <i class="bi bi-archive me-1"></i> Ver Armários
         </a>
         <a href="{{ route('gavetas.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Nova gaveta
+            <i class="bi bi-plus-lg me-1"></i> Nova Gaveta
         </a>
     </div>
 </div>
 
-@if($gavetas->isEmpty())
-    <div class="empty-state">
-        <i class="bi bi-inboxes"></i>
-        <p class="mt-2 mb-0">Nenhuma gaveta cadastrada ainda. Clique em "Nova gaveta" para começar.</p>
-    </div>
-@else
-    <div class="row g-3">
-        @foreach($gavetas as $gaveta)
-            @php
-                $capacidade = (int) $gaveta->capacidade_maxima;
-                $qtd = $gaveta->documentos->count();
-                $ocupacao = $capacidade > 0 ? min(100, (int) round($qtd / $capacidade * 100)) : 0;
-                $nivel = $ocupacao >= 90 ? 'danger' : ($ocupacao >= 80 ? 'warn' : 'ok');
-            @endphp
+<div class="row g-3">
+    @forelse($gavetas as $gaveta)
+        @php
+            $qtdDocs = $gaveta->documentos_count ?? $gaveta->documentos()->count();
+            $capacidade = $gaveta->capacidade ?? 0;
+            $percentual = $capacidade > 0 ? min(100, round(($qtdDocs / $capacidade) * 100)) : 0;
+            $corBarra = $percentual >= 90 ? 'bg-danger' : ($percentual >= 70 ? 'bg-warning' : 'bg-primary');
+        @endphp
 
-            <div class="col-12 col-md-6 col-xl-3">
-                <article class="gaveta-card">
-                    <div class="gaveta-head">
-                        <div class="gaveta-icon"><i class="bi bi-inbox"></i></div>
-                        <div>
-                            <h2>{{ $gaveta->identificacao }}</h2>
-                            <small>{{ $gaveta->armario->identificacao ?? 'Sem armário' }}</small>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-light text-secondary border">
+                                <i class="bi bi-archive me-1"></i>{{ $gaveta->armario->identificacao ?? 'Sem Armário' }}
+                            </span>
+                            <i class="bi bi-inboxes text-muted"></i>
                         </div>
+
+                        <h5 class="fw-bold text-dark mb-3">{{ $gaveta->identificacao }}</h5>
                     </div>
 
-                    <div class="occ-row">
-                        <span class="label">Documentos</span>
-                        <strong>{{ $qtd }} / {{ $capacidade }}</strong>
+                    <div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="text-muted">Documentos</span>
+                            <strong class="text-dark">
+                                {{ $qtdDocs }}{{ $capacidade > 0 ? ' / ' . $capacidade : ' arquivados' }}
+                            </strong>
+                        </div>
+
+                        @if($capacidade > 0)
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar {{ $corBarra }}" style="width: {{ $percentual }}%;"></div>
+                            </div>
+                            <div class="text-end" style="font-size: 0.75rem; color: #6b7280;">
+                                {{ $percentual }}% ocupada
+                            </div>
+                        @else
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: {{ $qtdDocs > 0 ? '25%' : '0%' }};"></div>
+                            </div>
+                            <div class="text-end" style="font-size: 0.75rem; color: #6b7280;">
+                                Capacidade livre
+                            </div>
+                        @endif
                     </div>
-                    <div class="occ-bar occ-{{ $nivel }}" role="progressbar"
-                         aria-label="Ocupação da gaveta {{ $gaveta->identificacao }}"
-                         aria-valuenow="{{ $ocupacao }}" aria-valuemin="0" aria-valuemax="100">
-                        <div style="width: {{ $ocupacao }}%"></div>
-                    </div>
-                    <div class="occ-pct {{ $nivel === 'ok' ? '' : $nivel }}">
-                        {{ $ocupacao }}% ocupada{{ $ocupacao >= 100 ? ' · cheia' : '' }}
-                    </div>
-                </article>
+                </div>
             </div>
-        @endforeach
-    </div>
-@endif
+        </div>
+    @empty
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5 text-muted">
+                    Nenhuma gaveta cadastrada.
+                </div>
+            </div>
+        </div>
+    @endforelse
+</div>
 @endsection

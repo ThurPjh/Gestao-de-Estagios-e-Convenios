@@ -58,8 +58,8 @@ class DocumentoController extends Controller
         return view('documentos.index', compact('documentos', 'cursos', 'assuntos', 'armarios'));
     }
 
-    public function create() {
-        $gavetas = Gaveta::with('armario')->get();
+    public function create() { 
+        $gavetas = Gaveta::with('armario')->withCount('documentos')->get();
         $cursos = Curso::all();
         $assuntos = Assunto::all();
         $alunos = Aluno::all();
@@ -100,7 +100,7 @@ class DocumentoController extends Controller
         $alunos = Aluno::orderBy('nome_aluno')->get();
         $cursos = Curso::orderBy('nome_curso')->get();
         $assuntos = Assunto::orderBy('nome_assunto')->get();
-        $gavetas = Gaveta::with('armario')->get();
+        $gavetas = Gaveta::with('armario')->withCount('documentos')->get();
 
         return view('documentos.edit', compact('documento', 'alunos', 'cursos', 'assuntos', 'gavetas'));
     }

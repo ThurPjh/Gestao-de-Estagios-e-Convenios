@@ -1,91 +1,72 @@
 @extends('layouts.app')
 
-@section('title', 'Alunos')
-
-@push('styles')
-<style>
-    .table-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    .table-sca { margin: 0; }
-    .table-sca thead th {
-        background: #f7f9fd; color: var(--muted);
-        font-size: .82rem; font-weight: 600;
-        padding: 12px 20px; border-bottom: 1px solid var(--line);
-    }
-    .table-sca tbody td {
-        padding: 14px 20px; vertical-align: middle;
-        border-bottom: 1px solid var(--line); font-size: .92rem;
-    }
-    .table-sca tbody tr:last-child td { border-bottom: 0; }
-    .table-sca tbody tr:hover { background: #f9fbff; }
-
-    .aluno-cell { display: flex; align-items: center; gap: 12px; font-weight: 500; }
-    .avatar {
-        width: 34px; height: 34px; border-radius: 50%;
-        background: var(--blue-soft); color: var(--blue);
-        display: grid; place-items: center;
-        font-size: .78rem; font-weight: 700; flex-shrink: 0;
-    }
-    .matricula { font-variant-numeric: tabular-nums; color: var(--muted); }
-
-    .empty-state {
-        padding: 48px 24px; text-align: center; color: var(--muted);
-    }
-    .empty-state i { font-size: 2rem; color: var(--blue); }
-</style>
-@endpush
-
 @section('content')
-<div class="page-head">
-    <div>
-        <h1>Alunos</h1>
-        <p>Consulte e gerencie os alunos cadastrados.</p>
-    </div>
-    <a href="{{ route('alunos.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Novo aluno
-    </a>
-</div>
-
-<div class="table-card">
-    @if($alunos->isEmpty())
-        <div class="empty-state">
-            <i class="bi bi-people"></i>
-            <p class="mt-2 mb-0">Nenhum aluno cadastrado ainda. Clique em "Novo aluno" para começar.</p>
+<div class="card">
+    <div class="card-header pt-3 pb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold text-dark">Alunos Cadastrados</h5>
+            <a href="{{ route('alunos.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Novo Aluno
+            </a>
         </div>
-    @else
+
+        <form action="{{ route('alunos.index') }}" method="GET" class="row g-2">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text"
+                           name="search"
+                           class="form-control border-start-0 ps-0"
+                           placeholder="Verificar se o aluno está registrado (digite matrícula ou nome)..."
+                           value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Pesquisar</button>
+                @if(request('search'))
+                    <a href="{{ route('alunos.index') }}" class="btn btn-outline-secondary">Limpar</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-sca">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th style="width: 220px;">Matrícula</th>
-                        <th>Nome do aluno</th>
+                        <th class="ps-4">Matrícula</th>
+                        <th>Nome Completo</th>
+                        <th>Documentos Arquivados</th>
+                        <th class="text-end pe-4">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($alunos as $aluno)
-                        @php
-                            $partes = preg_split('/\s+/', trim($aluno->nome_aluno));
-                            $iniciais = mb_strtoupper(mb_substr($partes[0], 0, 1) . (count($partes) > 1 ? mb_substr(end($partes), 0, 1) : ''));
-                        @endphp
-                        <tr>
-                            <td class="matricula">{{ $aluno->id }}</td>
-                            <td class="matricula">{{ $aluno->matricula_aluno }}</td>
-                            <td>
-                                <div class="aluno-cell">
-                                    <span class="avatar">{{ $iniciais }}</span>
-                                    {{ $aluno->nome_aluno }}
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                    @forelse($alunos as $aluno)
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">{{ $aluno->matricula_aluno }}</td>
+                        <td class="fw-medium text-dark">{{ $aluno->nome_aluno }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ $aluno->documentos_count }}</span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{{ route('alunos.edit', $aluno->id) }}" class="btn btn-sm btn-outline-secondary" title="Editar dados do aluno">
+                                <i class="bi bi-pencil me-1"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">Nenhum aluno encontrado.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    @endif
+    </div>
+
+    <div class="card-footer py-3">
+        {{ $alunos->links('pagination::bootstrap-5') }}
+    </div>
 </div>
 @endsection
